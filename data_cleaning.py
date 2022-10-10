@@ -86,18 +86,73 @@ df['Python'] = df['Job Description'].apply(lambda x : 1 if "python" in x.lower()
 
 #master
 df['Master degree'] = df['Job Description'].apply(lambda x : 1 if "master's degree" in x.lower() else 0)
-print(df['Job Description'].apply(lambda x : 1 if "master's degree" in x.lower() else 0).value_counts())
+
 
 #bachelor
 df['Bachelor degree'] = df['Job Description'].apply(lambda x : 1 if "bachelor's degree" in x.lower() else 0)
-print(df['Job Description'].apply(lambda x : 1 if "bachelor's degree" in x.lower() else 0).value_counts())
+
 
 #phd
 df['PHD'] = df['Job Description'].apply(lambda x : 1 if "phd" in x.lower() else 0)
-print(df['Job Description'].apply(lambda x : 1 if "phd" in x.lower() else 0).value_counts())
+
+#Creating less job titles categories
 
 
-columns = ['Job Title', 'Rating', 'Company Name', 'Type of ownership', 'Industry', 'Sector', 'Revenue', 'Competitors',
+def job_title_categories(job_title):
+    if 'data scientist' in job_title.lower() or 'data science' in job_title.lower():
+        return 'data scientist'
+    elif 'data engineer' in job_title.lower():
+        return 'data engineer'
+    elif 'data analyst' in job_title.lower():
+        return 'data analyst'
+    elif 'machine learning' in job_title.lower() or 'ml' in job_title.lower():
+        return 'ml engineer'
+    elif 'director' in job_title.lower():
+        return 'director'
+    elif 'manager' in job_title.lower():
+        return 'manager'
+    else:
+        return 'na'
+    
+df['Job Title Categories'] = df['Job Title'].apply(job_title_categories)
+
+
+#Senior or junior position
+def seniority(job_title):
+    if 'senior' in job_title.lower():
+        return 'senior'
+    elif 'junior' in job_title.lower():
+        return 'junior'
+    elif 'lead' in job_title.lower():
+        return 'lead'
+    else:
+        return 'na'
+    
+
+df['Seniority'] = df['Job Title'].apply(seniority)
+
+#Make hourly wage to annual wage
+def salary_hourly_to_annual(salary):
+    return int((salary * 40 * 52)/1000)
+
+df['Min Salary Estimate'] = df.apply(lambda x : int((x['Min Salary Estimate'] * 40 * 52)/1000) if x['Hourly'] == 1 else x['Min Salary Estimate'], axis = 1)
+df['Max Salary Estimate'] = df.apply(lambda x : int((x['Max Salary Estimate'] * 40 * 52)/1000) if x['Hourly'] == 1 else x['Min Salary Estimate'], axis = 1)
+df['Average Salary Estimate'] = df.apply(lambda x : int((x['Average Salary Estimate'] * 40 * 52)/1000) if x['Hourly'] == 1 else x['Min Salary Estimate'], axis = 1)
+
+#Get number of competitors
+def competitors_number(competitors):
+    if competitors == '-1':
+        return 0
+    else:
+        return len(competitors.split(','))
+
+
+df['number of competitors'] = df['Competitors'].apply(competitors_number)
+
+print(df['number of competitors'].value_counts())
+
+
+columns = ['Job Title Categories', 'Rating', 'Company Name', 'Type of ownership', 'Industry', 'Sector', 'Revenue', 'Competitors',
 'Hourly', 'Glassdoor estimates', 'Employer estimates',
 'Employer provided', 'Min Salary Estimate', 'Max Salary Estimate',
 'Average Salary Estimate', 'Location City', 'Location State',
